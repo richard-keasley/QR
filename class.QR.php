@@ -9,7 +9,7 @@ class QR {
 	 *
 	 * @var bool
 	 */
-	private $debug = true;
+	private $debug = false;
 
 	
 	/**
@@ -544,6 +544,18 @@ class QR {
 		// Fill the QR code grid with patterns
 		$this->add_patterns(true);
 
+	}
+
+
+
+	/**
+	 * Enable or disable debug mode
+	 *
+	 * @param bool $debug
+	 * @return void
+	 */
+	public function set_debug_mode($debug) {
+		$this->debug = !!$debug;
 	}
 
 
