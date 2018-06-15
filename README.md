@@ -2,10 +2,11 @@
 
 ## Example usage:
 
-```<?php include('class.QR.php');
+```php
+<?php
 
+include('class.QR.php');
 $string = "De tijd met mij vergeten bent. Tot blauwer dan blauw als ze lacht. Zeg mij maar wie wie wie wie wie heeft het gedaan.";
-
 $ob_qr = new QR($string, 'M');
 
 ?><!doctype html>
@@ -20,4 +21,5 @@ $ob_qr = new QR($string, 'M');
 	.m3 { background-color: #ff0; }
 </style></head>
 <body><?php echo $ob_qr->return_html(); ?></body>
-</html>```
+</html>
+```
