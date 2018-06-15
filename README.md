@@ -1,6 +1,6 @@
-#class.QR
+# class.QR
 
-##Example usage:
+## Example usage:
 
 ```<?php include('class.QR.php');
 
