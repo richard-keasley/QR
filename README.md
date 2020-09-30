@@ -10,7 +10,7 @@ Added more options
 - debug mode outputs HTML if image is requested
 - colours are now stored in an array
 
-## colours array
+### colours array
 Each colour is stored as array [R, G, B]
 
 - [0...3] are the three states of a cell (background, foreground, etc).
