@@ -1,5 +1,7 @@
 # class.QR
 
+This was forked from [https://github.com/kevin-toscani/QR]
+
 Added more options
 
 - colours applies to HTML and image
