@@ -1,25 +1,22 @@
 # class.QR
 
+Added more options
+
+- colours applies to HTML and image
+- HTML output is grid (not table)
+- debug output is always HTML
+- colours are now stored as array(0...3)
+
 ## Example usage:
 
-```php
-<?php
+require_once 'class.QR.php';
 
-include('class.QR.php');
-$string = "De tijd met mij vergeten bent. Tot blauwer dan blauw als ze lacht. Zeg mij maar wie wie wie wie wie heeft het gedaan.";
-$ob_qr = new QR($string, 'M');
+$code = filter_input(INPUT_GET, 'code');
+$string = "{your url}?code=$code";
 
-?><!doctype html>
-<html>
-<head><style>
-	table { margin: 100px; border-collapse: collapse; }
-	td { width: 5px; height: 5px; } 
-	.td { background-color: #ddd; }
-	.m0 { background-color: #fff; }
-	.m1 { background-color: #000; }
-	.m2 { background-color: #f09; }
-	.m3 { background-color: #ff0; }
-</style></head>
-<body><?php echo $ob_qr->return_html(); ?></body>
-</html>
-```
+$img = new QR($string, 'L');
+//$img->set_debug_mode(1);
+$img->pixel_size = 1;
+$img->padding = 0;
+$img->colours[1] = [80, 30, 30];
+$img->return_image(); 
