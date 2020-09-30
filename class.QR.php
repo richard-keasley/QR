@@ -1452,8 +1452,6 @@ class QR {
 		}
 	}
 
-
-
 	/**
 	 * Check if mask applies to current cell in the QR grid
 	 * 
@@ -1490,7 +1488,16 @@ class QR {
 		}
 	}
 
-
+	function pixel_size() {
+		$pixel_size = intval($this->pixel_size);
+		$pixel_size = min($pixel_size, 10);
+		$pixel_size = max($pixel_size, 2);
+		return $pixel_size;
+	}
+	function grid_padding() {
+		// Set or override padding
+		$grid_padding = intval($this->padding);
+	}
 
 	/**
 	 * Return an HTML table formatted QR code
@@ -1501,14 +1508,9 @@ class QR {
 		$this->log[] = '';
 		$this->log[] = 'Rendering...';
 		
-		// Set or override pixel size
-		$pixel_size = intval($this->pixel_size);
-		$pixel_size = min($pixel_size, 10);
-		$pixel_size = max($pixel_size, 2);
+		$pixel_size = $this->pixel_size();
 		$this->log[] = "pixel size: $pixel_size";
-		
-		// Set or override padding
-		$grid_padding = intval($this->padding);
+		$grid_padding = $this->grid_padding();
 		$this->log[] = "grid_padding: $grid_padding";
 		
 		// grid size
@@ -1563,17 +1565,12 @@ class QR {
 			die;
 		}
 
-		// Set or override pixel size
-		$pixel_size = intval($this->pixel_size);
-		$pixel_size = max($pixel_size, 2);
-		$pixel_size = min($pixel_size, 10);
-
-		// Set or override padding
-		$padding = intval($this->padding);
-		
+		$pixel_size = $this->pixel_size();
+		$grid_padding = $this->grid_padding();
+	
 		// Create image identifier
-		$width  = $pixel_size * ($padding * 2 + count($this->ar_grid[0]));
-		$height = $pixel_size * ($padding * 2 + count($this->ar_grid));
+		$width  = $pixel_size * ($grid_padding * 2 + count($this->ar_grid[0]));
+		$height = $pixel_size * ($grid_padding * 2 + count($this->ar_grid));
 		$im = imagecreatetruecolor($width, $height);
 
 		// Allocate colors
@@ -1586,9 +1583,9 @@ class QR {
 		imagefill($im, 1, 1, $colours[0]);
 		foreach($this->ar_grid as $row_number => $ar_row) {
 			foreach($ar_row as $col_number => $tile) {
-				$x1 = ($padding * $pixel_size) + ($col_number * $pixel_size);
+				$x1 = ($grid_padding * $pixel_size) + ($col_number * $pixel_size);
 				$x2 = $x1 + $pixel_size - 1;
-				$y1 = ($padding * $pixel_size) + ($row_number * $pixel_size);
+				$y1 = ($grid_padding * $pixel_size) + ($row_number * $pixel_size);
 				$y2 = $y1 + $pixel_size - 1;
 				$colour = $tile ? $colours[1] : $colours[0];
 				imagefilledrectangle($im, $x1, $y1, $x2, $y2, $colour);
