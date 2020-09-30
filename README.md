@@ -22,3 +22,4 @@ $img->pixel_size = 1;
 $img->padding = 0;
 $img->colours[1] = [80, 30, 30];
 $img->return_image(); 
+ 
