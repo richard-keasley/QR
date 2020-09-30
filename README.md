@@ -18,7 +18,7 @@ Each colour is stored as array [R, G, B]
 
 ## Example usage:
 
-```
+```php
 <?php
 require_once 'class.QR.php';
 
