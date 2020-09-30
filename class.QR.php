@@ -2,8 +2,6 @@
 
 class QR {
 
-
-
 	/**
 	 * Debug mode
 	 *
@@ -74,9 +72,32 @@ class QR {
 	 * @var string
 	 */
 	public $ecl;
+	
+	/* colours for return()
+	'_' for null
+	0 for background, 1 for foreground
+	2 3 for something else
+	array [R, G, B]
+	*/
+	public $colours = [
+		[255, 255, 255],
+		[0, 0, 0],
+		[255, 0, 100],
+		[255, 255, 0],
+		'_' => [128, 128, 128]
+	];
+	
+	/* pixel size
+		@var int
+	*/
+	public $pixel_size = 4;
+	
+	/* padding 
+		@var int
+	*/
+	public $padding = 2;
 
-
-
+	
 	/**
 	 * Mask type to be used (0-7)
 	 * This variable should be private, defined by choose_mask()
@@ -85,7 +106,6 @@ class QR {
 	 * @var int
 	 */
 	private $mask = false;
-
 
 
 	/**
@@ -1478,21 +1498,50 @@ class QR {
 	 * @return string
 	 */
 	function return_html() {
-
-		$html = '<table>';
-		foreach($this->ar_grid as $ar_row) {
-			$html .= '<tr>';
-
-			foreach($ar_row as $col) {
-				$html .= '<td class="' . ($col === false ? 'td' : 'm'.$col) . '"></td>';
+		$this->log[] = '';
+		$this->log[] = 'Rendering...';
+		
+		// Set or override pixel size
+		$pixel_size = intval($this->pixel_size);
+		$pixel_size = min($pixel_size, 10);
+		$pixel_size = max($pixel_size, 2);
+		$this->log[] = "pixel size: $pixel_size";
+		
+		// Set or override padding
+		$grid_padding = intval($this->padding);
+		$this->log[] = "grid_padding: $grid_padding";
+		
+		// grid size
+		$grid_cols = count($this->ar_grid[0]);
+		$grid_rows = count($this->ar_grid);
+		$this->log[] = "grid: $grid_cols x $grid_rows";
+		$width  = $pixel_size * ($grid_padding * 2 + $grid_cols);
+		$height = $pixel_size * ($grid_padding * 2 + $grid_rows);
+		$this->log[] = "size: $width x $height";
+						
+		// Allocate colors
+		$this->log[] = 'colours [0..3] and Null';
+		$colours = []; $hex = ['_'=>'#'];
+		foreach($this->colours as $col_key=>$colour) {
+			foreach($colour as $ch_key=>$channel) {
+				$hex[$ch_key] = str_pad(dechex($channel), 2, '0', STR_PAD_LEFT);
 			}
-			$html .= '</tr>';
+			$colours[$col_key] = implode("", $hex);
+			$this->log[] = "$col_key: $colours[$col_key]";
 		}
-		$html .= '</table>';
+
+		// Color pixels
+		$padding = $pixel_size * $grid_padding;
+		$html .= "<div style=\"display:grid; box-sizing:border-box;  background:$colours[0]; grid-template-columns:repeat($grid_cols,{$pixel_size}px); grid-template-rows:repeat($grid_rows,{$pixel_size}px); padding:{$padding}px; width:{$width}px; height:{$height}px;\">";
+		foreach($this->ar_grid as $row_number=>$ar_row) {
+			foreach($ar_row as $col_number=>$tile) {
+				$col_key = is_null($tile) ? '_' : $tile;
+				$html .= sprintf('<div style="background:%s"></div>', $colours[$col_key]);
+			}
+		}
+		$html .= '</div>';
 		return $html;
 	}
-
-
 
 	/**
 	 * Return the QR code as a multidimensional array
@@ -1503,44 +1552,46 @@ class QR {
 		return $this->ar_grid;
 	}
 
-
-
 	/**
 	 * Output the QR code as an image
 	 * 
 	 * @return void
 	 */
-	function return_image($pixel_size = null, $padding = null) {
+	function return_image() {
+		if($this->debug) {
+			echo $this->return_html();
+			die;
+		}
 
 		// Set or override pixel size
-		$pixel_size *= 1;
-		if(empty($pixel_size)) $pixel_size = 4;
+		$pixel_size = intval($this->pixel_size);
+		$pixel_size = max($pixel_size, 2);
 		$pixel_size = min($pixel_size, 10);
 
 		// Set or override padding
-		$padding *= 1;
-		if(empty($padding)) $padding = 3;
-		$padding = min($padding, 5);
-
+		$padding = intval($this->padding);
+		
 		// Create image identifier
-		$width  = $pixel_size * (4 + count($this->ar_grid[0]));
-		$height = $pixel_size * (4 + count($this->ar_grid));
+		$width  = $pixel_size * ($padding * 2 + count($this->ar_grid[0]));
+		$height = $pixel_size * ($padding * 2 + count($this->ar_grid));
 		$im = imagecreatetruecolor($width, $height);
 
 		// Allocate colors
-		$white = imagecolorallocate($im, 255, 255, 255);
-		$black = imagecolorallocate($im,   0,   0,   0);
-		imagefill($im, 1, 1, $white);
-
+		$colours = [];
+		foreach($this->colours as $key=>$colour) {
+			$colours[$key] = imagecolorallocate($im, $colour[0], $colour[1], $colour[2]);
+		}
+		
 		// Color pixels
+		imagefill($im, 1, 1, $colours[0]);
 		foreach($this->ar_grid as $row_number => $ar_row) {
 			foreach($ar_row as $col_number => $tile) {
-				$x1 = (2 * $pixel_size) + ($col_number * $pixel_size);
+				$x1 = ($padding * $pixel_size) + ($col_number * $pixel_size);
 				$x2 = $x1 + $pixel_size - 1;
-				$y1 = (2 * $pixel_size) + ($row_number * $pixel_size);
+				$y1 = ($padding * $pixel_size) + ($row_number * $pixel_size);
 				$y2 = $y1 + $pixel_size - 1;
-				$color = $tile ? $black : $white;
-				imagefilledrectangle($im, $x1, $y1, $x2, $y2, $color);
+				$colour = $tile ? $colours[1] : $colours[0];
+				imagefilledrectangle($im, $x1, $y1, $x2, $y2, $colour);
 			}
 		}
 
@@ -1562,5 +1613,3 @@ class QR {
 		}
 	}
 }
-
-
