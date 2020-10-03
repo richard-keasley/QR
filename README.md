@@ -11,10 +11,10 @@ Added more options
 - colours are now stored in an array
 
 ### colours array
-Each colour is stored as array [R, G, B]
+Each colour is stored as array \[R, G, B]
 
-- [0...3] are the three states of a cell (background, foreground, etc).
-- ['_'] is the colour used for cell value "null"
+- [0...3] are the three states of a cell (empty, filled, etc).
+- ['\_'] is the colour used for cell value "null"
 
 ## Example usage:
 
@@ -22,13 +22,13 @@ Each colour is stored as array [R, G, B]
 <?php
 require_once 'class.QR.php';
 
-$code = filter_input(INPUT_GET, 'code');
 $string = "Hello world";
 
-$img = new QR($string, 'L');
-//$img->set_debug_mode(1);
-$img->pixel_size = 1;
-$img->padding = 0;
-$img->colours[1] = [80, 30, 30];
-$img->return_image(); 
+$obj = new QR($string, 'L'); // create object(string, error correction, mode)
+//$obj->set_debug_mode(1); // debug shows log after output
+$obj->pixel_size = 1; // size of cells
+$obj->padding = 0; // number of padding cells 
+$obj->colours[0] = [200, 200, 200]; // colour of empty (background) cells [R, G, B]
+$obj->colours[1] = [80, 30, 30]; // colour of filled cells [R, G, B]
+$obj->return_image(); // output
 ```
