@@ -23,7 +23,7 @@ Each colour is stored as array [R, G, B]
 require_once 'class.QR.php';
 
 $code = filter_input(INPUT_GET, 'code');
-$string = "{your url}?code=$code";
+$string = "Hello world";
 
 $img = new QR($string, 'L');
 //$img->set_debug_mode(1);
